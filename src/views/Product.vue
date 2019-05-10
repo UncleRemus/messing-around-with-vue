@@ -1,21 +1,16 @@
 <template>
   <div class="product">
     <h2>
-      Product Page
+      Metronome
       <span></span>
     </h2>
     <img alt src="../assets/logo.png">
-    <div class="product-information">
-      {{ product.title }}
-      <ul>
-        <li>IMAP: {{ product.imap | money }}</li>
-        <li>Cost: {{ product.bnc | money }}</li>
-      </ul>
-      Inventory: {{ inventoryTotal }}
-    </div>
+    <br>
     <input type="text" v-model="tempo" val="60">
-    <button disabled="!!interval" @click="startMetronome">Start</button>
-    <button @click="stopMetronome(interval)">Stop</button>
+    <br>
+    <br>
+    <img v-bind:src="playBtn" v-if="!playing" @click="startMetronome">
+    <img v-bind:src="pauseBtn" v-if="playing" @click="stopMetronome">
   </div>
 </template>
 
@@ -23,6 +18,8 @@
 import { Howl, Howler } from "howler";
 import lowTick from "../assets/ping_low.wav";
 import hiTick from "../assets/ping_hi.wav";
+import playBtn from "../assets/play-btn.svg";
+import pauseBtn from "../assets/pause-btn.svg";
 import { setInterval, clearInterval } from "timers";
 
 export default {
@@ -30,7 +27,10 @@ export default {
   data: () => {
     return {
       tempo: 60,
-      interval: false
+      playing: false,
+      playBtn: playBtn,
+      pauseBtn: pauseBtn,
+      interval: null
     };
   },
   components: {},
@@ -43,7 +43,7 @@ export default {
     }
   },
   methods: {
-    startMetronome(tempo) {
+    startMetronome() {
       var low = new Howl({
         src: [lowTick]
       });
@@ -53,13 +53,12 @@ export default {
       });
 
       var count = 4;
-      var tempo = tempo | 60;
+      var tempo = this.$data.tempo;
       var int = (60 / tempo) * 1000;
 
-      console.log("tempo", tempo);
-      console.log("interval", int);
+      this.$data.playing = true;
 
-      this.interval = setInterval(() => {
+      this.$data.interval = setInterval(() => {
         soundClick();
       }, int);
 
@@ -73,8 +72,9 @@ export default {
         }
       };
     },
-    stopMetronome(interval) {
-      clearInterval(interval);
+    stopMetronome() {
+      clearInterval(this.$data.interval);
+      this.$data.playing = false;
     }
   }
 };
